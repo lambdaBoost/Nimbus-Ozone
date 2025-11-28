@@ -1,0 +1,5 @@
+value_list = []
+
+with open('L3_ozone_n7t_19790922.txt', 'r') as fh:
+    for line in fh:
+        value_list.append(line)
