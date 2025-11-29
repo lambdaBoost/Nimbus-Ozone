@@ -32,3 +32,39 @@ class global_conv_autoencoder(keras.Model):
         
         return {**base_config, **config}
     
+    
+
+@keras.saving.register_keras_serializable()
+class regional_deep_conv_autoencoder(keras.Model):
+    def __init__(self, **kwargs):
+        super(regional_deep_conv_autoencoder, self).__init__(**kwargs)
+        self.encoder = tf.keras.Sequential([
+            layers.Input(shape=(40, 40, 1)),
+            layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
+            layers.MaxPooling2D((2, 2), padding='same'),
+            layers.Conv2D(16, (3, 3), activation='relu', padding='same'),
+            layers.MaxPooling2D((2, 2), padding='same'),
+            layers.Conv2D(8, (3, 3), activation='relu', padding='same'),
+            layers.MaxPooling2D((2, 2), padding='same')])
+
+
+        self.decoder = tf.keras.Sequential([
+            layers.Conv2D(8, (3, 3), activation='relu', padding='same'),
+            layers.UpSampling2D((2, 2)),
+            layers.Conv2D(16, (3, 3), activation='relu', padding='same'),
+            layers.UpSampling2D((2, 2)),
+            layers.Conv2D(32, (5, 5), activation='relu', padding='same'),
+            layers.UpSampling2D((2, 2)),
+            layers.Conv2D(1, kernel_size=(3, 3), activation='sigmoid', padding='same')])
+
+    def call(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
+
+    def get_config(self):
+        base_config = super().get_config()
+        config = {'name': 'regional_deep_conv_autoencoder'}
+        
+        return {**base_config, **config}
+    
